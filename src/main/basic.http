@@ -1,0 +1,30 @@
+### set key value
+POST http://localhost:8080/set
+Content-Type: application/json
+
+{
+  "key": "hello",
+  "value": "world"
+}
+
+### get key
+GET http://localhost:8080/get?key=hi
+
+### mset key value key value
+POST http://localhost:8080/multi-set
+Content-Type: application/json
+
+[
+  {
+    "key": "hello",
+    "value": "world"
+  },
+  {
+    "key": "hi",
+    "value": "hello"
+  }
+]
+
+### mget key [key...]
+GET http://localhost:8080/multi-get?key=hello&key=hi
+

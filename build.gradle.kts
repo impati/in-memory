@@ -21,6 +21,14 @@ dependencies {
     implementation("io.projectreactor:reactor-core")
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation("io.projectreactor:reactor-test")
+
+    // ktor
+    implementation("io.ktor:ktor-server-core:2.0.3")
+    implementation("io.ktor:ktor-server-netty:2.0.3")
+    implementation("io.ktor:ktor-server-content-negotiation:2.0.3")
+    implementation("io.ktor:ktor-serialization-jackson:2.0.3")
+    implementation("io.ktor:ktor-serialization-gson:2.0.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.6.0")
 }
 
 tasks.test {
