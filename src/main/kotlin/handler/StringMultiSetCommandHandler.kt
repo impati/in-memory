@@ -7,6 +7,7 @@ import io.ktor.server.response.*
 import kotlinx.coroutines.reactive.awaitSingle
 import org.example.domain.string.ReactiveStringRepository
 import org.example.domain.string.StringCommand
+import org.example.domain.string.StringCommandValue
 
 class StringMultiSetCommandHandler(
     private val stringRepository: ReactiveStringRepository
@@ -16,7 +17,7 @@ class StringMultiSetCommandHandler(
         val commands = request.map {
             StringCommand(
                 it.key ?: throw IllegalArgumentException("key 값은 필수입니다."),
-                it.value ?: throw IllegalArgumentException("value 값은 필수입니다."),
+                StringCommandValue(it.value ?: throw IllegalArgumentException("value 값은 필수입니다.")),
                 it.option
             )
         }.toList()
