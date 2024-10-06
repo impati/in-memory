@@ -9,28 +9,28 @@ class StringCommandService(
 
     fun incr(key: String): Mono<String> {
         return reactiveStringRepository.get(key)
-            .switchIfEmpty(Mono.just(StringCommandValue.initializeIntegerValue()))
+            .switchIfEmpty(Mono.just(StringValue.initializeIntegerValue()))
             .flatMap { reactiveStringRepository.set(StringCommand(key, it.incr())) }
             .map { it.value }
     }
 
     fun decr(key: String): Mono<String> {
         return reactiveStringRepository.get(key)
-            .switchIfEmpty(Mono.just(StringCommandValue.initializeIntegerValue()))
+            .switchIfEmpty(Mono.just(StringValue.initializeIntegerValue()))
             .flatMap { reactiveStringRepository.set(StringCommand(key, it.decr())) }
             .map { it.value }
     }
 
     fun incr(key: String, by: Int): Mono<String> {
         return reactiveStringRepository.get(key)
-            .switchIfEmpty(Mono.just(StringCommandValue.initializeIntegerValue()))
+            .switchIfEmpty(Mono.just(StringValue.initializeIntegerValue()))
             .flatMap { reactiveStringRepository.set(StringCommand(key, it.plus(by))) }
             .map { it.value }
     }
 
     fun decr(key: String, by: Int): Mono<String> {
         return reactiveStringRepository.get(key)
-            .switchIfEmpty(Mono.just(StringCommandValue.initializeIntegerValue()))
+            .switchIfEmpty(Mono.just(StringValue.initializeIntegerValue()))
             .flatMap { reactiveStringRepository.set(StringCommand(key, it.minus(by))) }
             .map { it.value }
     }
@@ -55,7 +55,7 @@ class StringCommandService(
 
     fun multiGet(keys: List<String>): Flux<String> {
         return reactiveStringRepository.multiGet(keys)
-            .switchIfEmpty(Flux.just(StringCommandValue("nil")))
+            .switchIfEmpty(Flux.just(StringValue("nil")))
             .mapNotNull { it.value }
     }
 }

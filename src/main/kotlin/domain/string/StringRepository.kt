@@ -6,11 +6,11 @@ import reactor.core.publisher.Mono
 import java.util.*
 
 class StringRepository(
-    private val repository: MutableMap<String, StringCommandValue>
+    private val repository: MutableMap<String, StringValue>
 ) {
 
 
-    fun set(command: StringCommand): Mono<StringCommandValue> {
+    fun set(command: StringCommand): Mono<StringValue> {
         return Mono.defer {
             val previous = repository[command.key]
             when {
@@ -24,15 +24,15 @@ class StringRepository(
         }
     }
 
-    fun multiSet(commands: List<StringCommand>): Flux<StringCommandValue> {
+    fun multiSet(commands: List<StringCommand>): Flux<StringValue> {
         return Flux.fromIterable(commands).flatMap { set(it) }
     }
 
-    fun get(key: String): Mono<StringCommandValue> {
+    fun get(key: String): Mono<StringValue> {
         return Mono.justOrEmpty(repository[key])
     }
 
-    fun multiGet(keys: List<String>): Flux<StringCommandValue> {
+    fun multiGet(keys: List<String>): Flux<StringValue> {
         return Flux.fromIterable(keys).flatMap { get(it) }
     }
 }

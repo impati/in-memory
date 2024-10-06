@@ -4,6 +4,6 @@ import org.example.domain.Operator
 
 data class StringCommand(
     val key: String,
-    val value: StringCommandValue,
+    val value: StringValue,
     val operator: Operator = Operator.UPSERT
 )
