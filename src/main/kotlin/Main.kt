@@ -7,16 +7,17 @@ import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.routing.*
-import org.example.domain.string.ReactiveStringRepository
+import org.example.domain.string.StringCommandService
+import org.example.domain.string.StringRepository
 import org.example.handler.*
 
 fun main() {
-    val repository = ReactiveStringRepository(mutableMapOf())
+    val service = StringCommandService(StringRepository(mutableMapOf()))
     val handlerMap = mutableMapOf<String, Pair<Handler, HttpMethod>>()
-    handlerMap["/set"] = Pair(StringSetCommandHandler(repository), HttpMethod.Post)
-    handlerMap["/multi-set"] = Pair(StringMultiSetCommandHandler(repository), HttpMethod.Post)
-    handlerMap["/get"] = Pair(StringGetCommandHandler(repository), HttpMethod.Get)
-    handlerMap["/multi-get"] = Pair(StringMultiGetCommandHandler(repository), HttpMethod.Get)
+    handlerMap["/set"] = Pair(StringSetCommandHandler(service), HttpMethod.Post)
+    handlerMap["/multi-set"] = Pair(StringMultiSetCommandHandler(service), HttpMethod.Post)
+    handlerMap["/get"] = Pair(StringGetCommandHandler(service), HttpMethod.Get)
+    handlerMap["/multi-get"] = Pair(StringMultiGetCommandHandler(service), HttpMethod.Get)
 
     embeddedServer(Netty, port = 8080) {
         install(ContentNegotiation) {

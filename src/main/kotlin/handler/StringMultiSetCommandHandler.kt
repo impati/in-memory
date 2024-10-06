@@ -5,12 +5,12 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import kotlinx.coroutines.reactive.awaitSingle
-import org.example.domain.string.ReactiveStringRepository
 import org.example.domain.string.StringCommand
+import org.example.domain.string.StringCommandService
 import org.example.domain.string.StringCommandValue
 
 class StringMultiSetCommandHandler(
-    private val stringRepository: ReactiveStringRepository
+    private val stringCommandService: StringCommandService
 ) : Handler {
     override suspend fun handle(call: ApplicationCall) {
         val request = call.receive<List<KeyValueRequest>>()
@@ -21,7 +21,7 @@ class StringMultiSetCommandHandler(
                 it.option
             )
         }.toList()
-        val response = stringRepository.multiSet(commands).collectList().awaitSingle()
+        val response = stringCommandService.multiSet(commands).collectList().awaitSingle()
         call.respond(HttpStatusCode.OK, response!!)
     }
 }

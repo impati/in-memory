@@ -1,9 +1,9 @@
 package domain.string
 
-import org.example.domain.string.ReactiveStringRepository
 import org.example.domain.string.StringCommand
 import org.example.domain.string.StringCommandService
 import org.example.domain.string.StringCommandValue
+import org.example.domain.string.StringRepository
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -11,12 +11,12 @@ import reactor.test.StepVerifier
 
 class StringCommandServiceTest {
 
-    private lateinit var reactiveStringRepository: ReactiveStringRepository
+    private lateinit var reactiveStringRepository: StringRepository
     private lateinit var stringCommandService: StringCommandService
 
     @BeforeEach
     fun setUp() {
-        reactiveStringRepository = ReactiveStringRepository(mutableMapOf())
+        reactiveStringRepository = StringRepository(mutableMapOf())
         stringCommandService = StringCommandService(reactiveStringRepository)
     }
 
@@ -81,6 +81,28 @@ class StringCommandServiceTest {
 
         StepVerifier.create(stringCommandService.decr(key, 5))
             .expectNext("5")
+            .verifyComplete()
+    }
+
+    @Test
+    @DisplayName("key 에 값을 넣으면 값이 저장된다.")
+    fun test7() {
+        val key = "hello"
+        val value = "world"
+        val command = StringCommand(key, StringCommandValue(value))
+
+        StepVerifier.create(stringCommandService.set(command))
+            .expectNext("world")
+            .verifyComplete()
+    }
+
+    @Test
+    @DisplayName("key 에 값이 없었을 경우 nil 을 응답한다.")
+    fun test8() {
+        val key = "hello"
+
+        StepVerifier.create(stringCommandService.get(key))
+            .expectNext("nil")
             .verifyComplete()
     }
 }
