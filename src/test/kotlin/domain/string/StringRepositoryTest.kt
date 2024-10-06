@@ -3,128 +3,72 @@ package domain.string
 import org.example.domain.Operator
 import org.example.domain.string.StringCommand
 import org.example.domain.string.StringRepository
-import org.junit.jupiter.api.Assertions.assertEquals
+import org.example.domain.string.StringValue
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
+import reactor.test.StepVerifier
 
 class StringRepositoryTest {
 
-    private val repository: StringRepository = StringRepository(mutableMapOf())
+    private val reactiveStringRepository = StringRepository(mutableMapOf())
 
     @Test
-    @DisplayName("UPSERT 하면 값이 있어도 새로운 값으로 업데이트한다")
-    fun upsert1() {
-        val command = StringCommand(key = "hello", value = "world", Operator.UPSERT)
-        repository.set(StringCommand(key = "hello", value = "arount"))
-
-        val result = repository.set(command)
-
-        assertEquals(command.value, result)
-    }
-
-    @Test
-    @DisplayName("UPSERT 하면 값이 없어도 새로운 값으로 업데이트한다")
-    fun upsert2() {
-        val command = StringCommand(key = "hello", value = "world", Operator.UPSERT)
-
-        val result = repository.set(command)
-
-        assertEquals(command.value, result)
-    }
-
-    @Test
-    @DisplayName("UPDATE_ONLY 인 경우 기존에 값이 없으면 null 을 반환한다.")
-    fun update_only1() {
-        val command = StringCommand(key = "hello", value = "world", Operator.UPDATE_ONLY)
-
-        val result = repository.set(command)
-
-        assertEquals(null, result)
-    }
-
-    @Test
-    @DisplayName("UPDATE_ONLY 인 경우 기존에 값이 있으면 업데이트한다.")
-    fun update_only2() {
-        val command = StringCommand(key = "hello", value = "world", Operator.UPDATE_ONLY)
-        repository.set(StringCommand(key = "hello", value = "arount"))
-
-
-        val result = repository.set(command)
-
-        assertEquals(command.value, result)
-    }
-
-
-    @Test
-    @DisplayName("INSERT_ONLY 인 경우 기존에 값이 있으면 예외를 던진다.")
-    fun insert_only1() {
-        val command = StringCommand(key = "hello", value = "world", Operator.INSERT_ONLY)
-        repository.set(StringCommand(key = "hello", value = "arount"))
-
-        val result = repository.set(command)
-
-        assertEquals(null, result)
-    }
-
-    @Test
-    @DisplayName("INSERT_ONLY 인 경우 기존에 값이 없으면 삽입 한다.")
-    fun insert_only2() {
-        val command = StringCommand(key = "hello", value = "world", Operator.INSERT_ONLY)
-
-        val result = repository.set(command)
-
-        assertEquals(command.value, result)
-    }
-
-    @Test
-    @DisplayName("key 에 해당하는 value 가 있으면 리턴한다.")
-    fun get1() {
-        val command = StringCommand(key = "hello", value = "world")
-        repository.set(command)
-
-        val result = repository.get(command.key)
-
-        assertEquals(command.value, result)
-    }
-
-    @Test
-    @DisplayName("key 에 해당하는 value 가 없으면 null 리턴한다.")
-    fun get2() {
-        val key = "hello"
-
-        val result = repository.get(key)
-
-        assertEquals(null, result)
-    }
-
-    @Test
-    @DisplayName("여러 개를 set 할 수 있어야한다.")
     fun multiSet() {
-        val commands = listOf(
-            StringCommand("first", "one", Operator.UPSERT),
-            StringCommand("second", "two", Operator.UPDATE_ONLY),
-            StringCommand("third", "three", Operator.INSERT_ONLY)
-        )
+        val command = listOf(StringCommand("hello", StringValue("world")))
 
-        val result = repository.multiSet(commands)
-
-        result.forEachIndexed { index, expected -> assertEquals(expected, result[index]) }
+        StepVerifier.create(reactiveStringRepository.multiSet(command))
+            .expectNext(StringValue("world"))
+            .verifyComplete()
     }
 
     @Test
-    @DisplayName("여러 개를 get 할 수 있어야한다.")
     fun multiGet() {
-        val commands = listOf(
-            StringCommand("first", "one", Operator.UPSERT),
-            StringCommand("second", "two", Operator.UPDATE_ONLY),
-            StringCommand("third", "three", Operator.INSERT_ONLY)
+        val command = listOf(
+            StringCommand("hello", StringValue("world")),
+            StringCommand("hi", StringValue("hello"))
         )
-        repository.multiSet(commands)
+        reactiveStringRepository.multiSet(command).subscribe()
 
-        val result = repository.multiGet(listOf("first", "second", "third"))
+        StepVerifier.create(reactiveStringRepository.multiGet(listOf("hello", "hi")))
+            .expectNext(StringValue("world"), StringValue("hello"))
+            .verifyComplete()
+    }
 
-        assertEquals("one", result[0])
-        assertEquals(null, result[1])
-        assertEquals("three", result[2])
+    @Test
+    fun multiGet2() {
+        reactiveStringRepository.set(StringCommand("hello", StringValue("world"))).block()
+
+        StepVerifier.create(reactiveStringRepository.multiGet(listOf("hello", "hi")))
+            .expectNextCount(1)
+            .verifyComplete()
+    }
+
+    @Test
+    @DisplayName("옵션이 UPDATE_ONLY 인 경우 기존 값이 없을 때 Mono.empty 를 반환한다.")
+    fun set() {
+        val command = StringCommand("hello", StringValue("world"), Operator.UPDATE_ONLY)
+
+        StepVerifier.create(reactiveStringRepository.set(command))
+            .expectNextCount(0)
+            .verifyComplete()
+    }
+
+    @Test
+    @DisplayName("옵션이 INSERT_ONLY 인 경우 기존 값이 있을 때 Mono.empty 를 반환한다.")
+    fun set2() {
+        reactiveStringRepository.set(StringCommand("hello", StringValue("world"))).block()
+        val command = StringCommand("hello", StringValue("world2"), Operator.INSERT_ONLY)
+
+        StepVerifier.create(reactiveStringRepository.set(command))
+            .expectNextCount(0)
+            .verifyComplete()
+    }
+
+    @Test
+    @DisplayName("key 에 대한 값이 없는 경우 Mono.empty 를 반환한다.")
+    fun get() {
+        StepVerifier.create(reactiveStringRepository.get("hello"))
+            .expectNextCount(0)
+            .verifyComplete()
     }
 }

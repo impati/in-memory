@@ -3,12 +3,12 @@ POST http://localhost:8080/set
 Content-Type: application/json
 
 {
-  "key": "hello",
-  "value": "world"
+  "key": "incr-exe",
+  "value": "1"
 }
 
 ### get key
-GET http://localhost:8080/get?key=hi
+GET http://localhost:8080/get?key=hello
 
 ### mset key value key value
 POST http://localhost:8080/multi-set
@@ -26,5 +26,11 @@ Content-Type: application/json
 ]
 
 ### mget key [key...]
-GET http://localhost:8080/multi-get?key=hello&key=hi
+GET http://localhost:8080/multi-get?key=hello&key=hidas
 
+
+### incr key
+POST http://localhost:8080/incr?key=incr-exe&by=10
+
+### decr key
+POST http://localhost:8080/decr?key=incr-exe&by=9

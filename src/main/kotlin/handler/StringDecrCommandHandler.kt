@@ -6,12 +6,16 @@ import io.ktor.server.response.*
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.example.domain.string.StringCommandService
 
-class StringGetCommandHandler(
+class StringDecrCommandHandler(
     private val stringCommandService: StringCommandService
 ) : Handler {
     override suspend fun handle(call: ApplicationCall) {
         val key = call.parameters["key"] ?: throw IllegalArgumentException("key 값은 필수입니다.")
-        val response = stringCommandService.get(key).awaitSingleOrNull()
+        call.parameters["by"]?.let {
+            val response = stringCommandService.decr(key, it.toInt()).awaitSingleOrNull()
+            call.respond(HttpStatusCode.OK, response!!)
+        }
+        val response = stringCommandService.decr(key).awaitSingleOrNull()
         call.respond(HttpStatusCode.OK, response!!)
     }
 }
