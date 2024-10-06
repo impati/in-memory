@@ -18,6 +18,8 @@ fun main() {
     handlerMap["/multi-set"] = Pair(StringMultiSetCommandHandler(service), HttpMethod.Post)
     handlerMap["/get"] = Pair(StringGetCommandHandler(service), HttpMethod.Get)
     handlerMap["/multi-get"] = Pair(StringMultiGetCommandHandler(service), HttpMethod.Get)
+    handlerMap["/incr"] = Pair(StringIncrCommandHandler(service), HttpMethod.Post)
+    handlerMap["/decr"] = Pair(StringDecrCommandHandler(service), HttpMethod.Post)
 
     embeddedServer(Netty, port = 8080) {
         install(ContentNegotiation) {
